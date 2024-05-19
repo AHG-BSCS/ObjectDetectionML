@@ -4,7 +4,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>b73ca1cf-5bf0-43d2-b4a8-040388b75940</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>ObjectDetectionML.py</StartupFile>
+    <StartupFile>main.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
@@ -21,7 +21,19 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="ObjectDetectionML.py" />
+    <Compile Include="main.py" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="dataset\" />
+    <Folder Include="dataset\dog\" />
+    <Folder Include="dataset\cat\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="dataset\cat\00TB-MEOWS-square640.jpg" />
+    <Content Include="dataset\cat\Cat_November_2010-1a.jpg" />
+    <Content Include="dataset\dog\gettyimages-114166947-1-268128f97e5c415baede328c1fe32f55.jpg" />
+    <Content Include="dataset\dog\KOA_Nassau_2697x1517.jpg" />
+    <Content Include="requirements.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
   <!-- Uncomment the CoreCompile target to enable the Build command in
