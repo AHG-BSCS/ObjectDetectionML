@@ -27,12 +27,24 @@
     <Folder Include="dataset\" />
     <Folder Include="dataset\dog\" />
     <Folder Include="dataset\cat\" />
+    <Folder Include="dataset\human\" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="dataset\cat\00TB-MEOWS-square640.jpg" />
-    <Content Include="dataset\cat\Cat_November_2010-1a.jpg" />
-    <Content Include="dataset\dog\gettyimages-114166947-1-268128f97e5c415baede328c1fe32f55.jpg" />
-    <Content Include="dataset\dog\KOA_Nassau_2697x1517.jpg" />
+    <Content Include="dataset\cat\143682253-ginger-red-cat-isilated-on-white-background.jpg" />
+    <Content Include="dataset\cat\360_F_135300481_5TSK8DX14n9iNUN8hsHqj8Cyhu01NRwI.jpg" />
+    <Content Include="dataset\cat\360_F_71484888_WoANXkBd8NPSlvuWrMFly8LFslU2eBS1.jpg" />
+    <Content Include="dataset\cat\7a9d0d3e2678927b6d1994d9b078030b.png" />
+    <Content Include="dataset\cat\unnamed.jpg" />
+    <Content Include="dataset\dog\125791173-studio-shot-of-an-adorable-mixed-breed-dog-standing-on-white-background.jpg" />
+    <Content Include="dataset\dog\360_F_66749097_nCsOYh69ix0o7h1DDXztTADd4N3q0Kze.jpg" />
+    <Content Include="dataset\dog\brown-dog-sitting-on-a-white-background-free-photo.jpg" />
+    <Content Include="dataset\dog\depositphotos_4133829-stock-photo-golden-retriever.jpg" />
+    <Content Include="dataset\dog\dog-ridgeback-rhodesian-ridgeback-animal.jpg" />
+    <Content Include="dataset\human\360_F_305776453_t7SUl48g63zLsyODxd60aj6EcWR9avVK.jpg" />
+    <Content Include="dataset\human\360_F_312907438_yndoDCcP7U0JAY1eOKoRdcYaVfRBQe6E.jpg" />
+    <Content Include="dataset\human\depositphotos_209846480-stock-photo-human-face-isolated-white-background.jpg" />
+    <Content Include="dataset\human\depositphotos_53687783-stock-photo-sad-woman-talking-on-mobile.jpg" />
+    <Content Include="dataset\human\pngtree-young-man-thinking-portrait-isolated-on-white-asian-picture-image_13206155.png" />
     <Content Include="requirements.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />

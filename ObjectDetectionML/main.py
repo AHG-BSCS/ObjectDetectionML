@@ -1,18 +1,21 @@
 import os
 import cv2
 import numpy as np
+from skimage.feature import hog
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.model_selection import train_test_split
 
-# Function to extract features (simple grayscale flattening for this example)
+# Function to extract HOG features
 def extract_features(image):
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    resized = cv2.resize(gray, (50, 50))  # Resize to 50x50 pixels
-    flattened = resized.flatten()
-    return flattened
+    resized = cv2.resize(gray, (50, 50))  # Ensure consistent size
+    features, hog_image = hog(resized, pixels_per_cell=(8, 8),
+                              cells_per_block=(2, 2), 
+                              visualize=True, feature_vector=True)
+    return features
 
 # Function to load images and labels from the dataset directory
-def load_dataset(dataset_path, target_size=(100, 100)):
+def load_dataset(dataset_path, target_size=(50, 50)):
     images = []
     labels = []
     for label in os.listdir(dataset_path):
@@ -22,12 +25,10 @@ def load_dataset(dataset_path, target_size=(100, 100)):
                 img_path = os.path.join(class_dir, img_name)
                 img = cv2.imread(img_path)
                 if img is not None:
-                    # Resize image to target size
                     img = cv2.resize(img, target_size)
                     images.append(img)
-                    labels.append(label)  # Use label names as the labels
+                    labels.append(label)
     return images, labels
-
 
 # Load dataset
 dataset_path = 'dataset'  # Update this to your actual dataset path
@@ -61,24 +62,45 @@ while True:
     if not ret:
         break
     
-    # Resize frame to the same size as training images (for simplicity)
-    frame_resized = cv2.resize(frame, (50, 50))
+    # Convert frame to grayscale
+    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    _, thresh = cv2.threshold(gray, 50, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
     
-    # Extract features from the frame
-    features = extract_features(frame_resized)
+    # Find contours
+    contours, _ = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     
-    # Reshape and predict
-    features = features.reshape(1, -1)
-    prediction = knn.predict(features)
-    
-    # Convert integer prediction back to label
-    predicted_label = int_to_label[prediction[0]]
-    
-    # Draw bounding box around the object and display the prediction
-    height, width, _ = frame.shape
-    cv2.rectangle(frame, (10, 10), (width - 10, height - 10), (0, 255, 0), 2)
-    cv2.putText(frame, f"Prediction: {predicted_label}", (20, 40), 
-                cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+    if contours:
+        # Find the largest contour
+        largest_contour = max(contours, key=cv2.contourArea)
+        
+        # Get bounding box for the largest contour
+        x, y, w, h = cv2.boundingRect(largest_contour)
+        
+        # Extract the ROI and resize it to the target size
+        roi = frame[y:y+h, x:x+w]
+        if roi.size > 0:  # Check if ROI is valid
+            roi_resized = cv2.resize(roi, (50, 50))
+            
+            # Extract features from the ROI
+            features = extract_features(roi_resized)
+            features = features.reshape(1, -1)
+            neighbors = knn.kneighbors(features, return_distance=False)
+            
+            # Get the most common label among the neighbors
+            neighbor_labels = y_train[neighbors[0]]
+            (unique, counts) = np.unique(neighbor_labels, return_counts=True)
+            most_common_label = unique[np.argmax(counts)]
+            
+            # Set a confidence threshold
+            confidence_threshold = 0.6
+            confidence = np.max(counts) / knn.n_neighbors
+            
+            if confidence > confidence_threshold:
+                predicted_label = int_to_label[most_common_label]
+                # Draw bounding box around the detected object and display the prediction
+                cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
+                cv2.putText(frame, f"Prediction: {predicted_label}", (x, y - 10), 
+                            cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 255, 0), 2)
     
     # Show the frame
     cv2.imshow('Live Object Detection', frame)
