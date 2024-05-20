@@ -115,20 +115,21 @@ while True:
     aspect_ratio = frame_w / frame_h
     
     # Calculate new dimensions to fit the frame within the window without stretching
-    if window_w / window_h > aspect_ratio:
-        new_w = int(window_h * aspect_ratio)
-        new_h = window_h
-    else:
-        new_h = int(window_w / aspect_ratio)
-        new_w = window_w
+    if window_w != 0 or window_h != 0:
+        if window_w / window_h > aspect_ratio:
+            new_w = int(window_h * aspect_ratio)
+            new_h = window_h
+        else:
+            new_h = int(window_w / aspect_ratio)
+            new_w = window_w
     
     # Resize frame to fit within the window
-    resized_frame = cv2.resize(frame, (new_w, new_h))
+        resized_frame = cv2.resize(frame, (new_w, new_h))
     
     # Show the frame with black borders to maintain aspect ratio
-    border_w = (window_w - new_w) // 2
-    border_h = (window_h - new_h) // 2
-    bordered_frame = cv2.copyMakeBorder(resized_frame, border_h, border_h, border_w, border_w, cv2.BORDER_CONSTANT, value=(0, 0, 0))
+        border_w = (window_w - new_w) // 2
+        border_h = (window_h - new_h) // 2
+        bordered_frame = cv2.copyMakeBorder(resized_frame, border_h, border_h, border_w, border_w, cv2.BORDER_CONSTANT, value=(0, 0, 0))
     
     # Show the frame
     cv2.imshow('Live Object Detection', bordered_frame)
