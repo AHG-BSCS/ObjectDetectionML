@@ -25,11 +25,19 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="dataset\" />
+    <Folder Include="dataset\bottle\" />
     <Folder Include="dataset\dog\" />
     <Folder Include="dataset\cat\" />
     <Folder Include="dataset\human\" />
+    <Folder Include="dataset\laruan\" />
+    <Folder Include="dataset\phone\" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="dataset\bottle\WIN_20240520_16_42_03_Pro.jpg" />
+    <Content Include="dataset\bottle\WIN_20240520_16_42_07_Pro.jpg" />
+    <Content Include="dataset\bottle\WIN_20240520_16_42_08_Pro.jpg" />
+    <Content Include="dataset\bottle\WIN_20240520_16_42_10_Pro.jpg" />
+    <Content Include="dataset\bottle\WIN_20240520_16_42_12_Pro.jpg" />
     <Content Include="dataset\cat\143682253-ginger-red-cat-isilated-on-white-background.jpg" />
     <Content Include="dataset\cat\360_F_135300481_5TSK8DX14n9iNUN8hsHqj8Cyhu01NRwI.jpg" />
     <Content Include="dataset\cat\360_F_71484888_WoANXkBd8NPSlvuWrMFly8LFslU2eBS1.jpg" />
@@ -45,6 +53,22 @@
     <Content Include="dataset\human\depositphotos_209846480-stock-photo-human-face-isolated-white-background.jpg" />
     <Content Include="dataset\human\depositphotos_53687783-stock-photo-sad-woman-talking-on-mobile.jpg" />
     <Content Include="dataset\human\pngtree-young-man-thinking-portrait-isolated-on-white-asian-picture-image_13206155.png" />
+    <Content Include="dataset\human\WIN_20240520_16_51_11_Pro.jpg" />
+    <Content Include="dataset\human\WIN_20240520_16_51_16_Pro.jpg" />
+    <Content Include="dataset\human\WIN_20240520_16_51_17_Pro.jpg" />
+    <Content Include="dataset\human\WIN_20240520_16_51_23_Pro.jpg" />
+    <Content Include="dataset\human\WIN_20240520_16_51_27_Pro.jpg" />
+    <Content Include="dataset\laruan\WIN_20240520_17_03_08_Pro.jpg" />
+    <Content Include="dataset\laruan\WIN_20240520_17_03_10_Pro.jpg" />
+    <Content Include="dataset\laruan\WIN_20240520_17_03_11_Pro.jpg" />
+    <Content Include="dataset\laruan\WIN_20240520_17_03_13_Pro.jpg" />
+    <Content Include="dataset\laruan\WIN_20240520_17_03_15_Pro.jpg" />
+    <Content Include="dataset\laruan\WIN_20240520_17_03_18_Pro.jpg" />
+    <Content Include="dataset\phone\WIN_20240520_16_42_15_Pro.jpg" />
+    <Content Include="dataset\phone\WIN_20240520_16_42_17_Pro.jpg" />
+    <Content Include="dataset\phone\WIN_20240520_16_42_20_Pro.jpg" />
+    <Content Include="dataset\phone\WIN_20240520_16_42_22_Pro.jpg" />
+    <Content Include="dataset\phone\WIN_20240520_16_42_24_Pro.jpg" />
     <Content Include="requirements.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />

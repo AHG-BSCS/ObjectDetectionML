@@ -47,7 +47,7 @@ X = np.array([extract_features(img) for img in images])
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
 # Train k-NN classifier
-knn = KNeighborsClassifier(n_neighbors=10)
+knn = KNeighborsClassifier(n_neighbors=5)
 knn.fit(X_train, y_train)
 
 # Evaluate on test set
@@ -56,6 +56,11 @@ print(f"Accuracy: {accuracy * 100:.2f}%")
 
 # Set up live camera feed
 cap = cv2.VideoCapture(0)
+
+# Set initial window size (adjust as needed)
+initial_window_size = (640, 480)
+cv2.namedWindow('Live Object Detection', cv2.WINDOW_NORMAL)
+cv2.resizeWindow('Live Object Detection', *initial_window_size)
 
 while True:
     ret, frame = cap.read()
@@ -102,8 +107,31 @@ while True:
                 cv2.putText(frame, f"Prediction: {predicted_label}", (x, y - 10), 
                             cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 255, 0), 2)
     
+    # Get window size
+    window_h, window_w = cv2.getWindowImageRect('Live Object Detection')[3], cv2.getWindowImageRect('Live Object Detection')[2]
+    
+    # Calculate aspect ratio of the frame
+    frame_h, frame_w = frame.shape[:2]
+    aspect_ratio = frame_w / frame_h
+    
+    # Calculate new dimensions to fit the frame within the window without stretching
+    if window_w / window_h > aspect_ratio:
+        new_w = int(window_h * aspect_ratio)
+        new_h = window_h
+    else:
+        new_h = int(window_w / aspect_ratio)
+        new_w = window_w
+    
+    # Resize frame to fit within the window
+    resized_frame = cv2.resize(frame, (new_w, new_h))
+    
+    # Show the frame with black borders to maintain aspect ratio
+    border_w = (window_w - new_w) // 2
+    border_h = (window_h - new_h) // 2
+    bordered_frame = cv2.copyMakeBorder(resized_frame, border_h, border_h, border_w, border_w, cv2.BORDER_CONSTANT, value=(0, 0, 0))
+    
     # Show the frame
-    cv2.imshow('Live Object Detection', frame)
+    cv2.imshow('Live Object Detection', bordered_frame)
     
     # Break loop on 'q' key press
     if cv2.waitKey(1) & 0xFF == ord('q'):
