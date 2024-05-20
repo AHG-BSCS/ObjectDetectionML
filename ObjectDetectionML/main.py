@@ -133,7 +133,25 @@ def start_gui():
     root = tk.Tk()
     root.title("Object Detection")
 
-    label = tk.Label(root, text="Welcome to Object Detection System", font=("Arial", 24))
+    # Set window size
+    window_width = 400
+    window_height = 300
+
+    # Get screen width and height
+    screen_width = root.winfo_screenwidth()
+    screen_height = root.winfo_screenheight()
+
+    # Calculate position x, y to center the window
+    position_top = int(screen_height/2 - window_height/2)
+    position_right = int(screen_width/2 - window_width/2)
+
+    # Set the position of the window to the center of the screen
+    root.geometry(f'{window_width}x{window_height}+{position_right}+{position_top}')
+
+    # Disable maximize button
+    root.resizable(False, False)
+
+    label = tk.Label(root, text="Welcome to Object Detection System", font=("Arial", 16))
     label.pack(pady=20)
 
     start_button = tk.Button(root, text="Start", font=("Arial", 16), command=on_start_button)
