@@ -107,7 +107,11 @@ while True:
                 cv2.putText(frame, f"Prediction: {predicted_label}", (x, y - 10), 
                             cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 255, 0), 2)
     
-    # Get window size
+    # Check if the window is still open
+    if cv2.getWindowProperty('Live Object Detection', cv2.WND_PROP_VISIBLE) < 1:
+        break
+
+    # Get window size         
     window_h, window_w = cv2.getWindowImageRect('Live Object Detection')[3], cv2.getWindowImageRect('Live Object Detection')[2]
     
     # Calculate aspect ratio of the frame
