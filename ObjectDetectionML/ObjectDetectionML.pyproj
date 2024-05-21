@@ -11,6 +11,7 @@
     <OutputPath>.</OutputPath>
     <Name>ObjectDetectionML</Name>
     <RootNamespace>ObjectDetectionML</RootNamespace>
+    <InterpreterId>MSBuild|ObjectDetectionML|$(MSBuildProjectFullPath)</InterpreterId>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DebugSymbols>true</DebugSymbols>
@@ -48,11 +49,6 @@
     <Content Include="dataset\dog\brown-dog-sitting-on-a-white-background-free-photo.jpg" />
     <Content Include="dataset\dog\depositphotos_4133829-stock-photo-golden-retriever.jpg" />
     <Content Include="dataset\dog\dog-ridgeback-rhodesian-ridgeback-animal.jpg" />
-    <Content Include="dataset\human\360_F_305776453_t7SUl48g63zLsyODxd60aj6EcWR9avVK.jpg" />
-    <Content Include="dataset\human\360_F_312907438_yndoDCcP7U0JAY1eOKoRdcYaVfRBQe6E.jpg" />
-    <Content Include="dataset\human\depositphotos_209846480-stock-photo-human-face-isolated-white-background.jpg" />
-    <Content Include="dataset\human\depositphotos_53687783-stock-photo-sad-woman-talking-on-mobile.jpg" />
-    <Content Include="dataset\human\pngtree-young-man-thinking-portrait-isolated-on-white-asian-picture-image_13206155.png" />
     <Content Include="dataset\human\WIN_20240520_16_51_11_Pro.jpg" />
     <Content Include="dataset\human\WIN_20240520_16_51_16_Pro.jpg" />
     <Content Include="dataset\human\WIN_20240520_16_51_17_Pro.jpg" />
@@ -70,6 +66,17 @@
     <Content Include="dataset\phone\WIN_20240520_16_42_22_Pro.jpg" />
     <Content Include="dataset\phone\WIN_20240520_16_42_24_Pro.jpg" />
     <Content Include="requirements.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Interpreter Include="..\..\..\..\Documents\Python\ObjectDetectionML\">
+      <Id>ObjectDetectionML</Id>
+      <Version>3.9</Version>
+      <Description>ObjectDetectionML (Python 3.9 (64-bit))</Description>
+      <InterpreterPath>Scripts\python.exe</InterpreterPath>
+      <WindowsInterpreterPath>Scripts\pythonw.exe</WindowsInterpreterPath>
+      <PathEnvironmentVariable>PYTHONPATH</PathEnvironmentVariable>
+      <Architecture>X64</Architecture>
+    </Interpreter>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
   <!-- Uncomment the CoreCompile target to enable the Build command in
