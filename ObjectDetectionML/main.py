@@ -1,25 +1,25 @@
 import os
 import cv2
+import torch
 import numpy as np
 import tkinter as tk
 from tkinter import Canvas
 from PIL import Image, ImageTk
-import torch
-import torch.nn as nn
-import torchvision.models as models
-import torchvision.transforms as transforms
-from skimage.feature import hog
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.model_selection import train_test_split
+from torchvision import transforms
+from torchvision.models import resnet18
+import torch.nn as nn
 
-# Load a pre-trained ResNet model
-model = models.resnet18(weights='IMAGENET1K_V1')
-# Remove the final fully connected layer
-model = nn.Sequential(*list(model.children())[:-1])
-# Set the model to evaluation mode
-model.eval()
+# Load YOLOv5 model
+model = torch.hub.load('ultralytics/yolov5', 'yolov5s')
 
-# Define the transform to preprocess the image
+# Load a pre-trained ResNet model for feature extraction
+resnet_model = resnet18(pretrained=True)
+resnet_model = nn.Sequential(*list(resnet_model.children())[:-1])
+resnet_model.eval()
+
+# Define the transform to preprocess the image for ResNet
 preprocess = transforms.Compose([
     transforms.ToPILImage(),
     transforms.Resize((224, 224)),  # ResNet expects 224x224 images
@@ -35,14 +35,14 @@ def extract_features(image):
     
     with torch.no_grad():
         # Extract features
-        features = model(input_tensor)
+        features = resnet_model(input_tensor)
     
     # Flatten the features to a 1D vector
     features = features.view(features.size(0), -1)
     return features.numpy().flatten()
 
 # Function to load images and labels from the dataset directory
-def load_dataset(dataset_path, target_size=(50, 50)):
+def load_dataset(dataset_path, target_size=(224, 224)):
     images = []
     labels = []
     for label in os.listdir(dataset_path):
@@ -70,78 +70,47 @@ def start_camera():
         ret, frame = cap.read()
         if not ret:
             break
-    
-        # Convert frame to grayscale
-        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-        _, thresh = cv2.threshold(gray, 50, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
-    
-        # Find contours
-        contours, _ = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-    
-        if contours:
-            # Find the largest contour
-            largest_contour = max(contours, key=cv2.contourArea)
         
-            # Get bounding box for the largest contour
-            x, y, w, h = cv2.boundingRect(largest_contour)
-        
-            # Extract the ROI and resize it to the target size
-            roi = frame[y:y+h, x:x+w]
+        # Perform inference with YOLOv5
+        results = model(frame)
+
+        # Process detections
+        for *box, conf, cls in results.xyxy[0]:
+            x1, y1, x2, y2 = map(int, box)
+            roi = frame[y1:y2, x1:x2]
             if roi.size > 0:  # Check if ROI is valid
                 roi_resized = cv2.resize(roi, (224, 224))  # ResNet expects 224x224 images
-            
-                # Extract features from the ROI using the PyTorch model
+                
+                # Extract features from the ROI using the ResNet model
                 features = extract_features(roi_resized)
                 features = features.reshape(1, -1)
+                
+                # Use k-NN to classify the object based on extracted features
                 neighbors = knn.kneighbors(features, return_distance=False)
-            
+                
                 # Get the most common label among the neighbors
                 neighbor_labels = y_train[neighbors[0]]
-                (unique, counts) = np.unique(neighbor_labels, return_counts=True)
+                unique, counts = np.unique(neighbor_labels, return_counts=True)
                 most_common_label = unique[np.argmax(counts)]
-            
+                
                 # Set a confidence threshold
                 confidence_threshold = 0.6
                 confidence = np.max(counts) / knn.n_neighbors
-            
+                
                 if confidence > confidence_threshold:
                     predicted_label = int_to_label[most_common_label]
                     # Draw bounding box around the detected object and display the prediction
-                    cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
-                    cv2.putText(frame, f"Prediction: {predicted_label}", (x, y - 10), 
+                    cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
+                    cv2.putText(frame, f"Prediction: {predicted_label}", (x1, y1 - 10), 
                                 cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 255, 0), 2)
-    
+
         # Check if the window is still open
         if cv2.getWindowProperty('Live Object Detection', cv2.WND_PROP_VISIBLE) < 1:
             break
-    
-        # Get window size         
-        window_h, window_w = cv2.getWindowImageRect('Live Object Detection')[3], cv2.getWindowImageRect('Live Object Detection')[2]
-    
-        # Calculate aspect ratio of the frame
-        frame_h, frame_w = frame.shape[:2]
-        aspect_ratio = frame_w / frame_h
-    
-        # Calculate new dimensions to fit the frame within the window without stretching
-        if window_w != 0 or window_h != 0:
-            if window_w / window_h > aspect_ratio:
-                new_w = int(window_h * aspect_ratio)
-                new_h = window_h
-            else:
-                new_h = int(window_w / aspect_ratio)
-                new_w = window_w
-    
-        # Resize frame to fit within the window
-            resized_frame = cv2.resize(frame, (new_w, new_h))
-    
-        # Show the frame with black borders to maintain aspect ratio
-            border_w = (window_w - new_w) // 2
-            border_h = (window_h - new_h) // 2
-            bordered_frame = cv2.copyMakeBorder(resized_frame, border_h, border_h, border_w, border_w, cv2.BORDER_CONSTANT, value=(0, 0, 0))
-    
+
         # Show the frame
-        cv2.imshow('Live Object Detection', bordered_frame)
-    
+        cv2.imshow('Live Object Detection', frame)
+
         # Break loop on 'q' key press
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
@@ -164,11 +133,11 @@ def start_gui():
 
     # Get screen width and height
     screen_width = root.winfo_screenwidth()
-    screen_height = root.winfo_screenheight()   
+    screen_height = root.winfo_screenheight()
 
     # Calculate position x, y to center the window
-    position_top = int(screen_height/2 - window_height/2)
-    position_right = int(screen_width/2 - window_width/2)
+    position_top = int(screen_height / 2 - window_height / 2)
+    position_right = int(screen_width / 2 - window_width / 2)
 
     # Set the position of the window to the center of the screen
     root.geometry(f'{window_width}x{window_height}+{position_right}+{position_top}')
