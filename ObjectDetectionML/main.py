@@ -2,6 +2,8 @@ import os
 import cv2
 import numpy as np
 import tkinter as tk
+from tkinter import Canvas
+from PIL import Image, ImageTk
 import torch
 import torch.nn as nn
 import torchvision.models as models
@@ -11,7 +13,7 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.model_selection import train_test_split
 
 # Load a pre-trained ResNet model
-model = models.resnet18(weights=True)
+model = models.resnet18(weights='IMAGENET1K_V1')
 # Remove the final fully connected layer
 model = nn.Sequential(*list(model.children())[:-1])
 # Set the model to evaluation mode
@@ -162,7 +164,7 @@ def start_gui():
 
     # Get screen width and height
     screen_width = root.winfo_screenwidth()
-    screen_height = root.winfo_screenheight()
+    screen_height = root.winfo_screenheight()   
 
     # Calculate position x, y to center the window
     position_top = int(screen_height/2 - window_height/2)
@@ -171,14 +173,30 @@ def start_gui():
     # Set the position of the window to the center of the screen
     root.geometry(f'{window_width}x{window_height}+{position_right}+{position_top}')
 
-    # Disable maximize button
+    # Disable maximize button and make the window non-resizable
     root.resizable(False, False)
 
-    label = tk.Label(root, text="Welcome to Object Detection System", font=("Arial", 16))
-    label.pack(pady=20)
+    # Load the background image using a relative path
+    script_dir = os.path.dirname(__file__)  # Absolute path to the directory of the script
+    image_path = os.path.join(script_dir, 'assets', 'background_image.jpg')  # Relative path to the image
+    original_image = Image.open(image_path)
+
+    # Resize the image to fit the window size
+    resized_image = original_image.resize((window_width, window_height), Image.LANCZOS)
+    background_photo = ImageTk.PhotoImage(resized_image)
+
+    # Create a canvas and add the background image
+    canvas = Canvas(root, width=window_width, height=window_height)
+    canvas.pack(fill='both', expand=True)
+    image_id = canvas.create_image(0, 0, image=background_photo, anchor='nw')
+    canvas.image = background_photo  # Keep a reference to the image to prevent garbage collection
+
+    # Add the label and button on the canvas
+    label = tk.Label(root, text="Welcome to Object Detection System", font=("Times New Roman", 18), bg='white')
+    label_window = canvas.create_window(window_width // 2, window_height // 3, anchor='center', window=label)
 
     start_button = tk.Button(root, text="Start", font=("Arial", 16), command=on_start_button)
-    start_button.pack(pady=20)
+    button_window = canvas.create_window(window_width // 2, window_height // 2, anchor='center', window=start_button)
 
     root.mainloop()
 
