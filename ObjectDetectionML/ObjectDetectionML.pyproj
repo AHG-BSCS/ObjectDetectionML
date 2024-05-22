@@ -11,7 +11,7 @@
     <OutputPath>.</OutputPath>
     <Name>ObjectDetectionML</Name>
     <RootNamespace>ObjectDetectionML</RootNamespace>
-    <InterpreterId>MSBuild|ObjectDetectionML|$(MSBuildProjectFullPath)</InterpreterId>
+    <InterpreterId>MSBuild|PyEnv|$(MSBuildProjectFullPath)</InterpreterId>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DebugSymbols>true</DebugSymbols>
@@ -72,6 +72,15 @@
       <Id>ObjectDetectionML</Id>
       <Version>3.9</Version>
       <Description>ObjectDetectionML (Python 3.9 (64-bit))</Description>
+      <InterpreterPath>Scripts\python.exe</InterpreterPath>
+      <WindowsInterpreterPath>Scripts\pythonw.exe</WindowsInterpreterPath>
+      <PathEnvironmentVariable>PYTHONPATH</PathEnvironmentVariable>
+      <Architecture>X64</Architecture>
+    </Interpreter>
+    <Interpreter Include="..\..\PyEnv\">
+      <Id>PyEnv</Id>
+      <Version>3.9</Version>
+      <Description>PyEnv (Python 3.9 (64-bit))</Description>
       <InterpreterPath>Scripts\python.exe</InterpreterPath>
       <WindowsInterpreterPath>Scripts\pythonw.exe</WindowsInterpreterPath>
       <PathEnvironmentVariable>PYTHONPATH</PathEnvironmentVariable>

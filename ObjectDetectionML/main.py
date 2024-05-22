@@ -188,8 +188,8 @@ def start_gui():
     canvas.image = background_photo  # Keep a reference to the image to prevent garbage collection
 
     # Add the label and button on the canvas
-    label = tk.Label(root, text="Welcome to Object Detection System", font=("Times New Roman", 18), bg='white')
-    label_window = canvas.create_window(window_width // 2, window_height // 3, anchor='center', window=label)
+    #label = tk.Label(root, text="Welcome to Object Detection System", font=("Times New Roman", 18), bg='white')
+    #label_window = canvas.create_window(window_width // 2, window_height // 3, anchor='center', window=label)
 
     start_button = tk.Button(root, text="Start", font=("Arial", 16), command=on_start_button)
     button_window = canvas.create_window(window_width // 2, window_height // 2, anchor='center', window=start_button)
