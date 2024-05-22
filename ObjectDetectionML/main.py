@@ -108,12 +108,39 @@ def start_camera():
         if cv2.getWindowProperty('Live Object Detection', cv2.WND_PROP_VISIBLE) < 1:
             break
 
+        # Get window size         
+        window_h, window_w = cv2.getWindowImageRect('Live Object Detection')[3], cv2.getWindowImageRect('Live Object Detection')[2]
+
+        # Calculate aspect ratio of the frame
+        frame_h, frame_w = frame.shape[:2]
+        aspect_ratio = frame_w / frame_h
+
+        # Calculate new dimensions to fit the frame within the window without stretching
+        if window_w != 0 or window_h != 0:
+            if window_w / window_h > aspect_ratio:
+                new_w = int(window_h * aspect_ratio)
+                new_h = window_h
+            else:
+                new_h = int(window_w / aspect_ratio)
+                new_w = window_w
+
+        # Resize frame to fit within the window
+            resized_frame = cv2.resize(frame, (new_w, new_h))
+
+        # Show the frame with black borders to maintain aspect ratio
+            border_w = (window_w - new_w) // 2
+            border_h = (window_h - new_h) // 2
+            bordered_frame = cv2.copyMakeBorder(resized_frame, border_h, border_h, border_w, border_w, cv2.BORDER_CONSTANT, value=(0, 0, 0))
+
         # Show the frame
-        cv2.imshow('Live Object Detection', frame)
+        cv2.imshow('Live Object Detection', bordered_frame)
 
         # Break loop on 'q' key press
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
+        
+        if cv2.waitKey(1) & 0xFF == ord('v'):
+            verify_dataset()
 
     cap.release()
     cv2.destroyAllWindows()
@@ -168,6 +195,85 @@ def start_gui():
     button_window = canvas.create_window(window_width // 2, window_height // 2, anchor='center', window=start_button)
 
     root.mainloop()
+
+# Function to display dataset images used during training with bounding boxes
+def verify_dataset():
+    # Create a new window
+    dataset_window = tk.Toplevel()
+    dataset_window.title("Dataset Images with Bounding Boxes")
+
+    # Set window size
+    window_width = 800
+    window_height = 600
+    dataset_window.geometry(f'{window_width}x{window_height}')
+
+    # Load the dataset images used during training
+    dataset_images = []
+    for label in os.listdir(dataset_path):
+        class_dir = os.path.join(dataset_path, label)
+        if os.path.isdir(class_dir):
+            class_images = [cv2.imread(os.path.join(class_dir, img_name)) for img_name in os.listdir(class_dir)]
+            dataset_images.extend(class_images)
+
+    # Function to display next image upon pressing Enter
+    def next_image(event):
+        nonlocal idx
+        idx += 1
+        if idx < len(dataset_images):
+            img = dataset_images[idx]
+            results = model(img)
+
+            # Process detections
+            for *box, conf, cls in results.xyxy[0]:
+                x1, y1, x2, y2 = map(int, box)
+                # Draw bounding box on the image
+                cv2.rectangle(img, (x1, y1), (x2, y2), (0, 255, 0), 2)
+
+            # Convert the image to RGB format
+            img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+            # Convert the image to PIL format
+            pil_img = Image.fromarray(img_rgb)
+            # Resize the image to fit the window
+            pil_img_resized = pil_img.resize((window_width // 2, window_height // 2), Image.LANCZOS)
+            # Convert PIL image to Tkinter PhotoImage
+            photo = ImageTk.PhotoImage(pil_img_resized)
+
+            # Update the image label
+            label_img.configure(image=photo)
+            label_img.image = photo  # Keep a reference to the image to prevent garbage collection
+            label_img.pack()
+
+    # Initialize index to track current image
+    idx = 0
+
+    # Display the first image
+    img = dataset_images[idx]
+    results = model(img)
+
+    # Process detections
+    for *box, conf, cls in results.xyxy[0]:
+        x1, y1, x2, y2 = map(int, box)
+        # Draw bounding box on the image
+        cv2.rectangle(img, (x1, y1), (x2, y2), (0, 255, 0), 2)
+
+    # Convert the image to RGB format
+    img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+    # Convert the image to PIL format
+    pil_img = Image.fromarray(img_rgb)
+    # Resize the image to fit the window
+    pil_img_resized = pil_img.resize((window_width // 2, window_height // 2), Image.LANCZOS)
+    # Convert PIL image to Tkinter PhotoImage
+    photo = ImageTk.PhotoImage(pil_img_resized)
+
+    # Create a label to display the image
+    label_img = tk.Label(dataset_window, image=photo)
+    label_img.image = photo  # Keep a reference to the image to prevent garbage collection
+    label_img.pack()
+
+    # Bind the Enter key to display the next image
+    dataset_window.bind('<Return>', next_image)
+
+    dataset_window.mainloop()
 
 # Main script
 if __name__ == "__main__":
