@@ -10,6 +10,7 @@ from sklearn.model_selection import train_test_split
 from torchvision import transforms
 from torchvision.models import resnet18
 import torch.nn as nn
+import pickle
 
 # Load YOLOv5 model
 model = torch.hub.load('ultralytics/yolov5', 'yolov5s')
@@ -59,7 +60,7 @@ def load_dataset(dataset_path, target_size=(224, 224)):
 
 # Function to start the camera and object detection
 def start_camera():
-    cap = cv2.VideoCapture(0)
+    cap = cv2.VideoCapture(1)
 
     # Set initial window size (adjust as needed)
     initial_window_size = (640, 480)
@@ -101,7 +102,7 @@ def start_camera():
                     predicted_label = int_to_label[most_common_label]
                     # Draw bounding box around the detected object and display the prediction
                     cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
-                    cv2.putText(frame, f"Prediction: {predicted_label}", (x1, y1 - 10), 
+                    cv2.putText(frame, f"{predicted_label}: {confidence_threshold * 100}%", (x1, y1 + 13), 
                                 cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 255, 0), 2)
 
         # Check if the window is still open
@@ -275,31 +276,49 @@ def verify_dataset():
 
     dataset_window.mainloop()
 
+def save_model_and_data(knn, X_train, y_train, label_to_int, int_to_label, filename='trained_model.pkl'):
+    with open(filename, 'wb') as file:
+        pickle.dump((knn, X_train, y_train, label_to_int, int_to_label), file)
+
+def load_model_and_data(filename='trained_model.pkl'):
+    with open(filename, 'rb') as file:
+        return pickle.load(file)
+
 # Main script
 if __name__ == "__main__":
-    # Load dataset
     dataset_path = 'dataset'  # Update this to your actual dataset path
-    images, labels = load_dataset(dataset_path)
 
-    # Convert string labels to integers
-    unique_labels = list(set(labels))
-    label_to_int = {label: idx for idx, label in enumerate(unique_labels)}
-    int_to_label = {idx: label for label, idx in label_to_int.items()}  # Reverse mapping
-    y = np.array([label_to_int[label] for label in labels])
+    # Check if trained model and data already exist
+    if os.path.exists('trained_model.pkl'):
+        knn, X_train, y_train, label_to_int, int_to_label = load_model_and_data()
+        print("Model and data loaded from file.")
+    else:
+        # Load dataset
+        images, labels = load_dataset(dataset_path)
 
-    # Extract features and labels
-    X = np.array([extract_features(img) for img in images])
+        # Convert string labels to integers
+        unique_labels = list(set(labels))
+        label_to_int = {label: idx for idx, label in enumerate(unique_labels)}
+        int_to_label = {idx: label for label, idx in label_to_int.items()}  # Reverse mapping
+        y = np.array([label_to_int[label] for label in labels])
 
-    # Split the dataset into training and test sets for validation
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+        # Extract features and labels
+        X = np.array([extract_features(img) for img in images])
 
-    # Train k-NN classifier
-    knn = KNeighborsClassifier(n_neighbors=3)
-    knn.fit(X_train, y_train)
+        # Split the dataset into training and test sets for validation
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
-    # Evaluate on test set
-    accuracy = knn.score(X_test, y_test)
-    print(f"Accuracy: {accuracy * 100:.2f}%")
+        # Train k-NN classifier
+        knn = KNeighborsClassifier(n_neighbors=3)
+        knn.fit(X_train, y_train)
+
+        # Evaluate on test set
+        accuracy = knn.score(X_test, y_test)
+        print(f"Accuracy: {accuracy * 100:.2f}%")
+
+        # Save the trained model and data
+        save_model_and_data(knn, X_train, y_train, label_to_int, int_to_label)
+        print("Model and data saved to file.")
 
     # Start the GUI
     start_gui()
