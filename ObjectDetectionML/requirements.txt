@@ -1,10 +1,11 @@
+pip
+threadpoolctl
 cvlib
 numpy
 opencv-python
 scikit-image
 scikit-learn
 scipy
-threadpoolctl
 torch
 torchvision
 
