@@ -43,16 +43,26 @@ def start_camera(knn, y_train, int_to_label):
                 unique, counts = np.unique(neighbor_labels, return_counts=True)
                 most_common_label = unique[np.argmax(counts)]
                 
-                # Set a confidence threshold
-                confidence_threshold = 0.6
-                confidence = np.max(counts) / knn.n_neighbors
+                confidence = knn.predict_proba(features)[0].max() * 100
                 
-                if confidence > confidence_threshold:
+                if confidence > 60:
                     predicted_label = int_to_label[most_common_label]
-                    # Draw bounding box around the detected object and display the prediction
                     cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
-                    cv2.putText(frame, f"{predicted_label}: {confidence_threshold * 100}%", (x1, y1 + 13), 
-                                cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 255, 0), 2)
+                        
+                    # Calculate the optimal font scale based on bounding box size
+                    box_width = x2 - x1
+                    box_height = y2 - y1
+                    label_text = f"{predicted_label}: {confidence:.2f}%"
+                        
+                    font_scale = 1.0
+                    font_thickness = 2
+                    text_size, _ = cv2.getTextSize(label_text, cv2.FONT_HERSHEY_SIMPLEX, font_scale, font_thickness)
+                        
+                    while text_size[0] > box_width or text_size[1] > box_height:
+                        font_scale -= 0.1
+                        text_size, _ = cv2.getTextSize(label_text, cv2.FONT_HERSHEY_SIMPLEX, font_scale, font_thickness)
+                        
+                    cv2.putText(frame, label_text, (x1, y1 + 25), cv2.FONT_HERSHEY_SIMPLEX, font_scale, (0, 255, 0), font_thickness)
 
         # Check if the window is still open
         if cv2.getWindowProperty('Live Object Detection', cv2.WND_PROP_VISIBLE) < 1:

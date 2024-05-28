@@ -1,5 +1,4 @@
 import ui
-
 import os
 import cv2
 import pickle
@@ -91,6 +90,9 @@ def update_dataset(dataset_path='dataset'):
     # Save the trained model and data
     save_model_and_data(knn, X_train, y_train, label_to_int, int_to_label)
     print("Model and data saved to file.")
+
+
+
 
 def main():
     dataset_path = 'dataset'  # Update this to your actual dataset path
