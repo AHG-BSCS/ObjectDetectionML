@@ -98,6 +98,11 @@ def start_gui(knn, y_train, int_to_label):
         root.destroy()
         start_camera(knn, y_train, int_to_label)
 
+    def on_update_button():
+        root.destroy()
+        process.update_dataset()
+        process.main()
+
     root = tk.Tk()
     root.title("Object Detection")
 
@@ -139,6 +144,9 @@ def start_gui(knn, y_train, int_to_label):
     #label_window = canvas.create_window(window_width // 2, window_height // 3, anchor='center', window=label)
 
     start_button = tk.Button(root, text="Start", font=("Arial", 16), command=on_start_button)
-    button_window = canvas.create_window(window_width // 2, window_height // 2, anchor='center', window=start_button)
+    start_button_window = canvas.create_window(window_width // 2, window_height // 2, anchor='center', window=start_button)
+    
+    update_button = tk.Button(root, text="Update", font=("Arial", 16), command=on_update_button)
+    update_button_window = canvas.create_window(window_width // 2, (window_height // 2) + 50, anchor='center', window=update_button)
 
     root.mainloop()

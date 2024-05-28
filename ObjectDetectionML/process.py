@@ -63,6 +63,34 @@ def save_model_and_data(knn, X_train, y_train, label_to_int, int_to_label, filen
 def load_model_and_data(filename='trained_model.pkl'):
     with open(filename, 'rb') as file:
         return pickle.load(file)
+    
+def update_dataset(dataset_path='dataset'):
+    # Load dataset
+    images, labels = load_dataset(dataset_path)
+
+    # Convert string labels to integers
+    unique_labels = list(set(labels))
+    label_to_int = {label: idx for idx, label in enumerate(unique_labels)}
+    int_to_label = {idx: label for label, idx in label_to_int.items()}  # Reverse mapping
+    y = np.array([label_to_int[label] for label in labels])
+
+    # Extract features and labels
+    X = np.array([extract_features(img) for img in images])
+
+    # Split the dataset into training and test sets for validation
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+    # Train k-NN classifier
+    knn = KNeighborsClassifier(n_neighbors=3)
+    knn.fit(X_train, y_train)
+
+    # Evaluate on test set
+    accuracy = knn.score(X_test, y_test)
+    print(f"Accuracy: {accuracy * 100:.2f}%")
+
+    # Save the trained model and data
+    save_model_and_data(knn, X_train, y_train, label_to_int, int_to_label)
+    print("Model and data saved to file.")
 
 def main():
     dataset_path = 'dataset'  # Update this to your actual dataset path
@@ -70,34 +98,8 @@ def main():
     # Check if trained model and data already exist
     if os.path.exists('trained_model.pkl'):
         knn, X_train, y_train, label_to_int, int_to_label = load_model_and_data()
-        print("Model and data loaded from file.")
     else:
-        # Load dataset
-        images, labels = load_dataset(dataset_path)
-
-        # Convert string labels to integers
-        unique_labels = list(set(labels))
-        label_to_int = {label: idx for idx, label in enumerate(unique_labels)}
-        int_to_label = {idx: label for label, idx in label_to_int.items()}  # Reverse mapping
-        y = np.array([label_to_int[label] for label in labels])
-
-        # Extract features and labels
-        X = np.array([extract_features(img) for img in images])
-
-        # Split the dataset into training and test sets for validation
-        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-
-        # Train k-NN classifier
-        knn = KNeighborsClassifier(n_neighbors=3)
-        knn.fit(X_train, y_train)
-
-        # Evaluate on test set
-        accuracy = knn.score(X_test, y_test)
-        print(f"Accuracy: {accuracy * 100:.2f}%")
-
-        # Save the trained model and data
-        save_model_and_data(knn, X_train, y_train, label_to_int, int_to_label)
-        print("Model and data saved to file.")
-
+        update_dataset(dataset_path)
+        
     # Start the GUI
     ui.start_gui(knn, y_train, int_to_label)
