@@ -1,18 +1,17 @@
-import process
-
 import os
 import cv2
 import numpy as np
 import tkinter as tk
 from tkinter import Canvas
 from PIL import Image, ImageTk
+import process
 
 # Function to start the camera and object detection
 def start_camera(knn, y_train, int_to_label):
     cap = cv2.VideoCapture(0)
 
     # Set initial window size (adjust as needed)
-    initial_window_size = (640, 480)
+    initial_window_size = (700, 550)
     cv2.namedWindow('Live Object Detection', cv2.WINDOW_NORMAL)
     cv2.resizeWindow('Live Object Detection', *initial_window_size)
 
@@ -113,12 +112,15 @@ def start_gui(knn, y_train, int_to_label):
         process.update_dataset()
         process.main()
 
+    def on_quit_button():
+        root.destroy()
+
     root = tk.Tk()
-    root.title("Object Detection")
+    root.title("Quick Spot")
 
     # Set window size
-    window_width = 400
-    window_height = 300
+    window_width = 700
+    window_height = 550
 
     # Get screen width and height
     screen_width = root.winfo_screenwidth()
@@ -136,7 +138,7 @@ def start_gui(knn, y_train, int_to_label):
 
     # Load the background image using a relative path
     script_dir = os.path.dirname(__file__)  # Absolute path to the directory of the script
-    image_path = os.path.join(script_dir, 'assets', 'background_image.jpg')  # Relative path to the image
+    image_path = os.path.join(script_dir, 'assets', 'home_try.png')  # Relative path to the image
     original_image = Image.open(image_path)
 
     # Resize the image to fit the window size
@@ -153,10 +155,19 @@ def start_gui(knn, y_train, int_to_label):
     #label = tk.Label(root, text="Welcome to Object Detection System", font=("Times New Roman", 18), bg='white')
     #label_window = canvas.create_window(window_width // 2, window_height // 3, anchor='center', window=label)
 
-    start_button = tk.Button(root, text="Start", font=("Arial", 16), command=on_start_button)
-    start_button_window = canvas.create_window(window_width // 2, window_height // 2, anchor='center', window=start_button)
-    
-    update_button = tk.Button(root, text="Update", font=("Arial", 16), command=on_update_button)
-    update_button_window = canvas.create_window(window_width // 2, (window_height // 2) + 50, anchor='center', window=update_button)
+    button_bg_color = "#AD88C6"
+    button_text_color = "#FFE6E6"
+
+    # Place the start button
+    start_button = tk.Button(root, text="START", font=("Avenir", 16), command=on_start_button, bg=button_bg_color, fg=button_text_color, cursor="hand2", borderwidth=0)
+    start_button.place(x=68, y=183, width=120, height=65)
+
+    # Place the update button
+    update_button = tk.Button(root, text="UPDATE", font=("Avenir", 16), command=on_update_button, bg=button_bg_color, fg=button_text_color, cursor="hand2", borderwidth=0)
+    update_button.place(x=68, y=258, width=120, height=65)
+
+    # Place the quit button
+    quit_button = tk.Button(root, text="QUIT", font=("Avenir", 16), command=on_quit_button, bg=button_bg_color, fg=button_text_color, cursor="hand2", borderwidth=0)
+    quit_button.place(x=68, y=333, width=120, height=65)
 
     root.mainloop()
