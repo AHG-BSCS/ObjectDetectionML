@@ -96,9 +96,9 @@ def start_gui(knn, y_train, int_to_label):
         root.deiconify()
 
     def on_update_button():
-        root.withdraw()
+        root.destroy()
         process.update_dataset()
-        root.deiconify()
+        process.main()
 
     def on_quit_button():
         root.destroy()
