@@ -64,12 +64,11 @@ def load_model_and_data(filename='trained_model.pkl'):
 
 # Updates data using the latest dataset
 def update_dataset(dataset_path='dataset'):
-    print("")
-    print("Updating data please wait...")
-    print("")
-    
+    print("Loading data...")
     images, labels = load_dataset(dataset_path)
 
+    print("")
+    print("Updating data please wait...")
     print("")
     print("This may take some time... (DON'T CLOSE THIS WINDOW)")
     print("")
