@@ -91,13 +91,14 @@ def start_camera(knn, y_train, int_to_label):
 # Starts the main frame
 def start_gui(knn, y_train, int_to_label):
     def on_start_button():
-        root.destroy()
+        root.withdraw()
         start_camera(knn, y_train, int_to_label)
+        root.deiconify()
 
     def on_update_button():
-        root.destroy()
+        root.withdraw()
         process.update_dataset()
-        process.main()
+        root.deiconify()
 
     def on_quit_button():
         root.destroy()
@@ -132,7 +133,7 @@ def start_gui(knn, y_train, int_to_label):
 
     button_bg_color = "#AD88C6"
     button_text_color = "#FFE6E6"
-
+    
     start_button = tk.Button(root, text="START", font=("Avenir", 16), command=on_start_button, bg=button_bg_color, fg=button_text_color, cursor="hand2", borderwidth=0)
     start_button.place(x=68, y=183, width=120, height=65)
 

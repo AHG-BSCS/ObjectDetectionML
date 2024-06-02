@@ -64,15 +64,11 @@ def load_model_and_data(filename='trained_model.pkl'):
 
 # Updates data using the latest dataset
 def update_dataset(dataset_path='dataset'):
-    print("")
-    print("Loading data...")
+    print("\nLoading data...")
     images, labels = load_dataset(dataset_path)
 
-    print("")
-    print("Updating data please wait...")
-    print("")
+    print("\nUpdating data please wait...")
     print("This may take some time... (DON'T CLOSE THIS WINDOW)")
-    print("")
     
     unique_labels = list(set(labels))
     label_to_int = {label: idx for idx, label in enumerate(unique_labels)}
@@ -89,7 +85,7 @@ def update_dataset(dataset_path='dataset'):
     accuracy = knn.score(X_test, y_test)
 
     save_model_and_data(knn, X_train, y_train, label_to_int, int_to_label)
-    print(f"Data updated successfully.")
+    print(f"\nData updated successfully.")
     print(f"Accuracy: {accuracy*100:.2f}%")
 
 def main():
