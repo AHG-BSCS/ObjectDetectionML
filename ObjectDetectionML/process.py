@@ -49,6 +49,7 @@ def load_dataset(dataset_path, target_size=(224, 224)):
                     img = cv2.resize(img, target_size)
                     images.append(img)
                     labels.append(label)
+            print(f"Loaded images for {label}.")
     return images, labels
 
 # Saves data as a file
@@ -65,9 +66,14 @@ def load_model_and_data(filename='trained_model.pkl'):
 def update_dataset(dataset_path='dataset'):
     print("")
     print("Updating data please wait...")
-    print("This may take some time... (DON'T CLOSE THIS WINDOW)")
+    print("")
+    
     images, labels = load_dataset(dataset_path)
 
+    print("")
+    print("This may take some time... (DON'T CLOSE THIS WINDOW)")
+    print("")
+    
     unique_labels = list(set(labels))
     label_to_int = {label: idx for idx, label in enumerate(unique_labels)}
     int_to_label = {idx: label for label, idx in label_to_int.items()}
