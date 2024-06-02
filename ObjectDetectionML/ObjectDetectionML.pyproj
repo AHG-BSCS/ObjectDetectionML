@@ -11,7 +11,7 @@
     <OutputPath>.</OutputPath>
     <Name>ObjectDetectionML</Name>
     <RootNamespace>ObjectDetectionML</RootNamespace>
-    <InterpreterId>MSBuild|env|$(MSBuildProjectFullPath)</InterpreterId>
+    <InterpreterId>MSBuild|ObjectDetectionML|$(MSBuildProjectFullPath)</InterpreterId>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DebugSymbols>true</DebugSymbols>
