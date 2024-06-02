@@ -9,8 +9,10 @@ from sklearn.model_selection import train_test_split
 from torchvision import transforms
 from torchvision.models import resnet18
 
+# Loads pretrained yolov5 model
 model = torch.hub.load('ultralytics/yolov5', 'yolov5s')
 
+# Loads pretrained resnet model
 resnet_model = resnet18(pretrained=True)
 resnet_model = torch.nn.Sequential(*list(resnet_model.children())[:-1])
 resnet_model.eval()
@@ -22,6 +24,7 @@ preprocess = transforms.Compose([
     transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
 ])
 
+# Preprocesses and extract features from images
 def extract_features(image):
     input_tensor = preprocess(image)
     input_tensor = input_tensor.unsqueeze(0)
@@ -32,6 +35,7 @@ def extract_features(image):
     features = features.view(features.size(0), -1)
     return features.numpy().flatten()
 
+# Loads the dataset
 def load_dataset(dataset_path, target_size=(224, 224)):
     images = []
     labels = []
@@ -47,14 +51,17 @@ def load_dataset(dataset_path, target_size=(224, 224)):
                     labels.append(label)
     return images, labels
 
+# Saves data as a file
 def save_model_and_data(knn, X_train, y_train, label_to_int, int_to_label, filename='trained_model.pkl'):
     with open(filename, 'wb') as file:
         pickle.dump((knn, X_train, y_train, label_to_int, int_to_label), file)
 
+# Loads data from existing file
 def load_model_and_data(filename='trained_model.pkl'):
     with open(filename, 'rb') as file:
         return pickle.load(file)
-    
+
+# Updates data using the latest dataset
 def update_dataset(dataset_path='dataset'):
     images, labels = load_dataset(dataset_path)
 
@@ -67,7 +74,7 @@ def update_dataset(dataset_path='dataset'):
 
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
-    knn = KNeighborsClassifier(n_neighbors=3)
+    knn = KNeighborsClassifier(n_neighbors=5)
     knn.fit(X_train, y_train)
 
     accuracy = knn.score(X_test, y_test)
@@ -78,13 +85,10 @@ def update_dataset(dataset_path='dataset'):
 
 
 def main():
-    dataset_path = 'dataset'  # Update this to your actual dataset path
-
-    # Check if trained model and data already exist
     if os.path.exists('trained_model.pkl'):
         knn, X_train, y_train, label_to_int, int_to_label = load_model_and_data()
     else:
-        update_dataset(dataset_path)
+        update_dataset()
         
     # Start the GUI
     ui.start_gui(knn, y_train, int_to_label)

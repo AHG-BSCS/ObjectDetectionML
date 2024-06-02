@@ -5,6 +5,8 @@ import tkinter as tk
 from tkinter import Canvas
 from PIL import Image, ImageTk
 import process
+
+# Starts the live camera frame
 def start_camera(knn, y_train, int_to_label):
     cap = cv2.VideoCapture(0)
 
@@ -17,8 +19,10 @@ def start_camera(knn, y_train, int_to_label):
         if not ret:
             break
         
+        # Uses yolov5 in processing frame
         results = process.model(frame)
-
+        
+        # Generates bounding box for detected object
         for *box, conf, cls in results.xyxy[0]:
             x1, y1, x2, y2 = map(int, box)
             roi = frame[y1:y2, x1:x2]
@@ -84,6 +88,7 @@ def start_camera(knn, y_train, int_to_label):
     cap.release()
     cv2.destroyAllWindows()
 
+# Starts the main frame
 def start_gui(knn, y_train, int_to_label):
     def on_start_button():
         root.destroy()
