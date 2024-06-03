@@ -32,16 +32,11 @@ def start_camera(knn, y_train, int_to_label):
                 features = process.extract_features(roi_resized)
                 features = features.reshape(1, -1)
                 
-                neighbors = knn.kneighbors(features, return_distance=False)
-                
-                neighbor_labels = y_train[neighbors[0]]
-                unique, counts = np.unique(neighbor_labels, return_counts=True)
-                most_common_label = unique[np.argmax(counts)]
-                
-                confidence = knn.predict_proba(features)[0].max() * 100
+                predicted_label = knn.predict(features)[0]
+                confidence = knn.predict_proba(features).max() * 100
                 
                 if confidence > 60:
-                    predicted_label = int_to_label[most_common_label]
+                    predicted_label = int_to_label[predicted_label]
                     cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
                     
                     box_width = x2 - x1
@@ -87,6 +82,7 @@ def start_camera(knn, y_train, int_to_label):
 
     cap.release()
     cv2.destroyAllWindows()
+
 
 # Starts the main frame
 def start_gui(knn, y_train, int_to_label):
