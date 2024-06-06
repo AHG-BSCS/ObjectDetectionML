@@ -7,10 +7,13 @@ from PIL import Image, ImageTk
 import process
 
 # Starts the live camera frame
-def start_camera(knn, y_train, int_to_label):
+def start_camera(knn, y_train, int_to_label, root):
     cap = cv2.VideoCapture(0)
 
-    initial_window_size = (700, 550)
+    screen_width = root.winfo_screenwidth()
+    screen_height = root.winfo_screenheight()
+
+    initial_window_size = (screen_width, screen_height)
     cv2.namedWindow('Live Object Detection', cv2.WINDOW_NORMAL)
     cv2.resizeWindow('Live Object Detection', *initial_window_size)
 
@@ -32,11 +35,16 @@ def start_camera(knn, y_train, int_to_label):
                 features = process.extract_features(roi_resized)
                 features = features.reshape(1, -1)
                 
-                predicted_label = knn.predict(features)[0]
-                confidence = knn.predict_proba(features).max() * 100
+                neighbors = knn.kneighbors(features, return_distance=False)
+                
+                neighbor_labels = y_train[neighbors[0]]
+                unique, counts = np.unique(neighbor_labels, return_counts=True)
+                most_common_label = unique[np.argmax(counts)]
+                
+                confidence = knn.predict_proba(features)[0].max() * 100
                 
                 if confidence > 60:
-                    predicted_label = int_to_label[predicted_label]
+                    predicted_label = int_to_label[most_common_label]
                     cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
                     
                     box_width = x2 - x1
@@ -83,12 +91,11 @@ def start_camera(knn, y_train, int_to_label):
     cap.release()
     cv2.destroyAllWindows()
 
-
 # Starts the main frame
 def start_gui(knn, y_train, int_to_label):
     def on_start_button():
         root.withdraw()
-        start_camera(knn, y_train, int_to_label)
+        start_camera(knn, y_train, int_to_label, root)
         root.deiconify()
 
     def on_update_button():
